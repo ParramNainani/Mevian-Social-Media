@@ -2,7 +2,6 @@
 
 Mevian is a luxurious and minimal social media app developed using **Flutter** and **Firebase**. It offers a visually appealing, Instagram-inspired interface with seamless user interactions including posting, liking, and commenting on images.
 
-![Mevian Logo]([logo.png])
 
 ---
 
