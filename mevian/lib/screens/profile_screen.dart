@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import '../utils/colors.dart';
-import '../utils/global_variables.dart';
 import '../models/user_model.dart' as model;
+import 'login_screen.dart'; 
 
 class ProfileScreen extends StatefulWidget {
   final String uid;
@@ -109,7 +109,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           body: ListView(
             children: [
               const SizedBox(height: 10),
-              // Search Bar
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: TextField(
@@ -146,6 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Column(
                             children: [
                               Row(
+                                mainAxisSize: MainAxisSize.max,
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
@@ -196,19 +196,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     backgroundColor:
                                                         Colors.black87,
                                                     duration: Duration(
-                                                      seconds: 2,
+                                                      milliseconds: 1500,
                                                     ),
                                                   ),
                                                 );
 
                                                 await Future.delayed(
-                                                  const Duration(seconds: 2),
+                                                  const Duration(
+                                                    milliseconds: 1500,
+                                                  ),
                                                 );
 
                                                 Navigator.of(
                                                   context,
-                                                ).pushReplacementNamed(
-                                                  '/login',
+                                                ).pushReplacement(
+                                                  MaterialPageRoute(
+                                                    builder:
+                                                        (context) =>
+                                                            const LoginScreen(),
+                                                  ),
                                                 );
                                               }
                                             },
@@ -269,7 +275,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       (snapshot.data! as dynamic).docs.isEmpty) {
                     return GridView.builder(
                       shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: _placeholderPosts.length,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
@@ -289,7 +294,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   return GridView.builder(
                     shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
                     itemCount: (snapshot.data! as dynamic).docs.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
@@ -301,7 +305,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     itemBuilder: (context, index) {
                       DocumentSnapshot snap =
                           (snapshot.data! as dynamic).docs[index];
-
                       return Image.network(snap['postUrl'], fit: BoxFit.cover);
                     },
                   );
