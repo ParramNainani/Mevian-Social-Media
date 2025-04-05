@@ -23,11 +23,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool isFollowing = false;
   bool isLoading = false;
 
-  // Placeholder data
   final Map<String, dynamic> _placeholderUserData = {
     'username': 'user_profile',
-    'photoUrl':
-        'https://sdmntprwestus.oaiusercontent.com/files/00000000-b4d8-5230-a6c8-dfa4299e7ec1/raw?se=2025-04-05T06%3A15%3A25Z&sp=r&sv=2024-08-04&sr=b&scid=4b99cdb7-12fb-5f8b-9fa0-f5d6b359d163&skoid=aa8389fc-fad7-4f8c-9921-3c583664d512&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-04-04T09%3A06%3A49Z&ske=2025-04-05T09%3A06%3A49Z&sks=b&skv=2024-08-04&sig=jqt1hCj6O2cdALNRkfNh5lKt8Rhs/pq5yrEkUkBkSVI%3D',
+    'photoUrl': 'https://picsum.photos/200',
     'uid': '123',
     'bio': 'This is a placeholder bio',
     'followers': ['1', '2'],
@@ -60,7 +58,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               .doc(widget.uid)
               .get();
 
-      // get post length
       var postSnap =
           await FirebaseFirestore.instance
               .collection('posts')
@@ -69,14 +66,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       postLen = postSnap.docs.length;
       userData = userSnap.data()!;
-      followers = userSnap.data()!['followers'].length;
-      following = userSnap.data()!['following'].length;
-      isFollowing = userSnap.data()!['followers'].contains(
+      followers = userData['followers'].length;
+      following = userData['following'].length;
+      isFollowing = userData['followers'].contains(
         FirebaseAuth.instance.currentUser!.uid,
       );
-      setState(() {});
     } catch (e) {
-      // Use placeholder data if there's an error
       userData = _placeholderUserData;
       postLen = _placeholderPosts.length;
       followers = _placeholderUserData['followers'].length;
@@ -102,7 +97,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final model.UserModel? user = Provider.of<UserProvider>(context).getUser;
-    final width = MediaQuery.of(context).size.width;
 
     return isLoading
         ? const Center(child: CircularProgressIndicator())
@@ -114,6 +108,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           body: ListView(
             children: [
+              const SizedBox(height: 10),
+              // Search Bar
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search...',
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.grey.shade900,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+              const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -123,8 +137,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         CircleAvatar(
                           backgroundColor: Colors.grey,
                           backgroundImage: NetworkImage(
-                            userData['photoUrl'] ??
-                                'https://sdmntprwestus.oaiusercontent.com/files/00000000-b4d8-5230-a6c8-dfa4299e7ec1/raw?se=2025-04-05T06%3A15%3A25Z&sp=r&sv=2024-08-04&sr=b&scid=4b99cdb7-12fb-5f8b-9fa0-f5d6b359d163&skoid=aa8389fc-fad7-4f8c-9921-3c583664d512&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-04-04T09%3A06%3A49Z&ske=2025-04-05T09%3A06%3A49Z&sks=b&skv=2024-08-04&sig=jqt1hCj6O2cdALNRkfNh5lKt8Rhs/pq5yrEkUkBkSVI%3D',
+                            userData['photoUrl'] ?? 'https://picsum.photos/200',
                           ),
                           radius: 40,
                         ),
@@ -133,7 +146,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Column(
                             children: [
                               Row(
-                                mainAxisSize: MainAxisSize.max,
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
@@ -148,12 +160,60 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 children: [
                                   FirebaseAuth.instance.currentUser!.uid ==
                                           widget.uid
-                                      ? FollowButton(
-                                        text: 'Edit Profile',
-                                        backgroundColor: mobileBackgroundColor,
-                                        textColor: primaryColor,
-                                        borderColor: Colors.grey,
-                                        function: () {},
+                                      ? Column(
+                                        children: [
+                                          FollowButton(
+                                            text: 'Edit Profile',
+                                            backgroundColor:
+                                                mobileBackgroundColor,
+                                            textColor: primaryColor,
+                                            borderColor: Colors.grey,
+                                            function: () {},
+                                          ),
+                                          const SizedBox(height: 6),
+                                          FollowButton(
+                                            text: 'Logout',
+                                            backgroundColor: Colors.red,
+                                            textColor: Colors.white,
+                                            borderColor: Colors.red,
+                                            function: () async {
+                                              await FirebaseAuth.instance
+                                                  .signOut();
+
+                                              if (context.mounted) {
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'Successfully logged out!',
+                                                      style: TextStyle(
+                                                        color: Colors.yellow,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    backgroundColor:
+                                                        Colors.black87,
+                                                    duration: Duration(
+                                                      seconds: 2,
+                                                    ),
+                                                  ),
+                                                );
+
+                                                await Future.delayed(
+                                                  const Duration(seconds: 2),
+                                                );
+
+                                                Navigator.of(
+                                                  context,
+                                                ).pushReplacementNamed(
+                                                  '/login',
+                                                );
+                                              }
+                                            },
+                                          ),
+                                        ],
                                       )
                                       : isFollowing
                                       ? FollowButton(
@@ -206,9 +266,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   }
 
                   if (!snapshot.hasData ||
-                      (snapshot.data! as dynamic).docs.length == 0) {
+                      (snapshot.data! as dynamic).docs.isEmpty) {
                     return GridView.builder(
                       shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: _placeholderPosts.length,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
@@ -228,6 +289,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   return GridView.builder(
                     shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     itemCount: (snapshot.data! as dynamic).docs.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
